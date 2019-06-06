@@ -1,0 +1,30 @@
+{
+    "sha-256": "1234123412dgfdfg2352345zsf",
+    "total": 12314,
+    "download": 123,
+    "info": [
+        [
+            {
+                "file-name": "temp1.txt",
+                "st": 0,
+                "file-length": 1996,
+                "cur-pos": 45
+            },
+            {
+                "file-name": "temp2.txt",
+                "st": 1234,
+                "file-length": 2996,
+                "cur-pos": 56
+            }
+        ],
+        [
+            {
+                "file-name": "temp3.txt",
+                "st": 0,
+                "file-length": 3996,
+                "cur-pos": 89
+            }
+
+        ]
+    ]
+}
