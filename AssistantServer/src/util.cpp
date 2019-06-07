@@ -391,9 +391,9 @@ string socket_to_file_client(const int sockfd, const int savefd, const size_t le
 }
 
 //bool s_login(std::shared_ptr<MSQL> conn, const string &username, const string &password)
-json s_login(MSQL *conn, const string &username, const string &password)
+json s_login(MSQL *conn, const string &u_id, const string &password)
 {
-    string sql = "select * from User where USERNAME=\'" + username + '\'';
+    string sql = "select * from User where U_ID=\'" + u_id + '\'';
     auto temp = conn->exec(sql);
     auto res = temp["OK"].get<bool>();
     if(res && temp["info"].size() == 1)

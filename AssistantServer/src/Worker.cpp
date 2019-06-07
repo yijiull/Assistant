@@ -80,17 +80,17 @@ void Worker::process()
         //登录
         //参数：用户、密码
         LOG(INFO) << "LOGIN";
-        auto username = cfg["username"].get<string>();
+        auto u_id = cfg["u_id"].get<string>();
         auto password = cfg["password"].get<string>();
-        auto res = s_login(conn, username, password);
+        auto res = s_login(conn, u_id, password);
         if(res["OK"].get<bool>()) //登录成功
         {
-            LOG(INFO) << username << " 登录成功";
+            LOG(INFO) << u_id << " 登录成功";
             send_json(m_sockfd, res);
         }
         else //登录失败,用户名或密码错误
         {
-            LOG(WARNING) << username << " 登录失败";
+            LOG(WARNING) << u_id << " 登录失败";
             json msg;
             msg["OK"] = false;
             send_json(m_sockfd, msg);
@@ -331,7 +331,16 @@ void Worker::process()
         //string to_id = res["info"][0]["U_ID"].get<string>();
         LOG(INFO) << "SEND_EMAIL";
         auto from_id = cfg["E_FROM"].get<string>();//get_user_id(conn, cfg["E_FROM"].get<string>());
-        auto to_id = get_user_id(conn, cfg["E_TO"].get<string>());
+        //auto to_id = get_user_id(conn, cfg["E_TO"].get<string>());
+        auto res = conn->exec("select U_ID from User where USERNAME=\"" + cfg["E_TO"].get<string>() + "\"");
+        if(!res["info"].size())
+        {
+            res["OK"] = false;
+            send_json(m_sockfd, res);
+            LOG(WARNING) << "发送邮件失败";
+            break;
+        }
+        string to_id = res["info"][0]["U_ID"].get<string>();
 
         //插入邮箱，类型为未读
         char buf[__C["BUF_SIZE"].get<int>() * 8];
@@ -339,7 +348,7 @@ void Worker::process()
         snprintf(buf, __C["BUF_SIZE"].get<int>() * 8 - 1, "insert into EMAIL(E_FROM, E_TO, E_TOPIC, E_CONTENT, E_TIME, E_TYPE)\
         values(%s, %s, \"%s\", \"%s\", now(), 0)", from_id.c_str(), to_id.c_str(), 
         cfg["E_TOPIC"].get<string>().c_str(), cfg["E_CONTENT"].get<string>().c_str());
-        auto res = conn->exec(buf);
+        res = conn->exec(buf);
         send_json(m_sockfd, res);
         if(res["OK"].get<bool>())
         {
@@ -410,6 +419,22 @@ void Worker::process()
         }
         break;
     }
+    case MARK_EMAIL:
+    {
+        LOG(INFO) << "MARK_EMAIL";
+        string e_id = cfg["E_ID"].get<string>();
+        auto res = conn->exec("update EMAIL set E_TYPE=1 where E_ID=" + e_id);
+        send_json(m_sockfd, res);
+        if(res["OK"].get<bool>())
+        {
+            LOG(INFO) << "标记邮件成功";
+        }
+        else
+        {
+            LOG(WARNING) << "标记邮件失败";
+        }
+        break;
+    }
     case DEL_EMAIL:
     {
         //删除邮件
@@ -459,7 +484,7 @@ void Worker::process()
         //获取学生列表
         //参数：课程id
         LOG(INFO) << "GET_STUDENT_LIST";
-        auto res = conn->exec("select USERNAME, SC.U_ID, ABSENT_CNT from User, SC where SC.U_ID=User.U_ID and SC.C_ID=" + cfg["C_ID"].get<string>());
+        auto res = conn->exec("select USERNAME, SC.U_ID, ABSENT_CNT, GRADE from User, SC where SC.U_ID=User.U_ID and SC.C_ID=" + cfg["C_ID"].get<string>());
         send_json(m_sockfd, res);
         if(res["OK"].get<bool>())
         {
@@ -481,8 +506,14 @@ void Worker::process()
         json res;
         if(temp["info"][0]["ROLE_TYPE"] == "student")
         {
-            res = conn->exec("select SC.C_ID, C_NAME, T_ID from SC, Course where \
+            res = conn->exec("select SC.C_ID, C_NAME, T_ID, ABSENT_CNT from SC, Course where \
             Course.C_ID=SC.C_ID and SC.U_ID=" + user_id);
+            int n = res["info"].size();
+            for(int i = 0; i < n; i++)
+            {
+                auto temp = conn->exec("select USERNAME from User where U_ID=" + res["info"][i]["T_ID"].get<string>());
+                res["info"][i]["T_NAME"] = temp["info"][0]["USERNAME"].get<string>();
+            }
         }
         else
         {

@@ -14,11 +14,11 @@ User::~User()
     close(m_epollfd);
     cout<<"close fd and epollfd\n";
 }
-bool User::c_login(string _username, string _password)
+bool User::c_login(string _u_id, string _password)
 {
     json msg;
     msg["type"] = LOGIN;
-    msg["username"] = _username;
+    msg["u_id"] = _u_id;
     msg["password"] = _password;
     send_json(m_sockfd, msg);
     epoll_event events[10];
@@ -29,11 +29,12 @@ bool User::c_login(string _username, string _password)
     if(task["OK"].get<bool>())
     {
         is_login = true;
-        file_manager = new FileManager(_username, 1);
-        username = _username;
+        file_manager = new FileManager(_u_id, 1);
+        u_id = _u_id;
         password = _password;
         sex = task["info"][0]["SEX"].get<string>();
-        u_id = task["info"][0]["U_ID"].get<string>();
+        //u_id = task["info"][0]["U_ID"].get<string>();
+        username = task["info"][0]["USERNAME"].get<string>();
         dept = task["info"][0]["DEPT"].get<string>();
         birth = task["info"][0]["BIRTH"].get<string>();
         role_type = task["info"][0]["ROLE_TYPE"].get<string>();
@@ -159,7 +160,7 @@ bool User::c_insert_topic(const string &course_id, const string &content)
 {
     json msg;
     msg["type"] = INSERT_TOPIC;
-    msg["M_AUTHOR"] = username;
+    msg["M_AUTHOR"] = u_id;
     msg["M_ABOUT"] = course_id;
     msg["M_CONTENT"] = content;
     send_json(m_sockfd, msg);
@@ -174,7 +175,7 @@ bool User::c_insert_comment(const string &topic_id, const string &content)
 {
     json msg;
     msg["type"] = INSERT_COMMENT;
-    msg["M_AUTHOR"] = username;
+    msg["M_AUTHOR"] = u_id;
     msg["topic_id"] = topic_id;
     msg["M_CONTENT"] = content;
     send_json(m_sockfd, msg);
@@ -191,7 +192,7 @@ bool User::c_insert_reply(const string &topic_id, const string &to, const string
 {
     json msg;
     msg["type"] = INSERT_REPLY;
-    msg["M_AUTHOR"] = username;
+    msg["M_AUTHOR"] = u_id;
     msg["comment_id"] = topic_id;
     msg["M_TO"] = to;
     msg["M_CONTENT"] = content;
@@ -206,7 +207,7 @@ bool User::c_insert_reply(const string &topic_id, const string &to, const string
 bool User::c_send_email(const string &to, const string &topic, const string &content)
 {
     json msg;
-    msg["E_FROM"] = username;
+    msg["E_FROM"] = u_id;
     msg["E_TO"] = to;
     msg["E_TOPIC"] = topic;
     msg["E_CONTENT"] = content;
@@ -223,7 +224,7 @@ bool User::c_send_email(const string &to, const string &topic, const string &con
 json User::c_get_email()
 {
     json msg;
-    msg["E_FROM"] = username;
+    msg["E_FROM"] = u_id;
     msg["type"] = GET_EMAIL;
     send_json(m_sockfd, msg);
     epoll_event events[10];
@@ -236,7 +237,7 @@ json User::c_get_email()
 json User::c_get_draft_email()
 {
     json msg;
-    msg["E_FROM"] = username;
+    msg["E_FROM"] = u_id;
     msg["type"] = GET_DRAFT_EMAIL;
     send_json(m_sockfd, msg);
     epoll_event events[10];
@@ -250,7 +251,7 @@ json User::c_get_draft_email()
 json User::c_get_unread_email()
 {
     json msg;
-    msg["E_FROM"] = username;
+    msg["E_FROM"] = u_id;
     msg["type"] = GET_UNREAD_EMAIL;
     send_json(m_sockfd, msg);
     epoll_event events[10];
@@ -259,6 +260,20 @@ json User::c_get_unread_email()
     json task;
     receive_json(m_epollfd, m_sockfd, task);
     return task;
+
+}
+bool User::c_mark_email(const string &e_id)
+{
+    json msg;
+    msg["type"] = MARK_EMAIL;
+    msg["e_id"] = e_id;
+    send_json(m_sockfd, msg);
+    epoll_event events[10];
+    int res = epoll_wait(m_epollfd, events, 10, -1);
+    assert(res == 1);
+    json task;
+    receive_json(m_epollfd, m_sockfd, task);
+    return task["OK"].get<bool>();
 
 }
 bool User::c_del_email(const string &e_id)
@@ -277,7 +292,7 @@ bool User::c_del_email(const string &e_id)
 bool User::c_save_draft_email(const string &to, const string &topic, const string &content)
 {
     json msg;
-    msg["E_FROM"] = username;
+    msg["E_FROM"] = u_id;
     msg["E_TO"] = to;
     msg["E_TOPIC"] = topic;
     msg["E_CONTENT"] = content;

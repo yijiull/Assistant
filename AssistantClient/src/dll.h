@@ -41,6 +41,7 @@ public:
     json c_get_draft_email();
     json c_get_unread_email();
     bool c_del_email(const string &e_id);
+    bool c_mark_email(const string &e_id);
     bool c_save_draft_email(const string &to, const string &topic, const string &content);
     bool download(const string &file_path);
     bool upload(const string &file_path);

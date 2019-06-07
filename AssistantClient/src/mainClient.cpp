@@ -263,6 +263,21 @@ int main(int argc, char* argv[])
             auto res = user.c_get_unread_email();
             cout<<res.dump(4)<<endl;
         }
+        else if(type == "mark_email")
+        {
+            cout<<"请输入邮件id:";
+            string e_id;
+            cin>>e_id;
+            auto res = user.c_mark_email(e_id);
+            if(res)
+            {
+                cout<<"邮件已读标记成功\n";
+            }
+            else
+            {
+                cout<<"邮件已读标记失败\n";
+            }
+        }
         else if(type == "del_email")
         {
             cout<<"请输入邮件id:";

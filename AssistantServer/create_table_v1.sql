@@ -80,3 +80,6 @@ insert into Msg(M_AUTHOR, M_TYPE, M_ABOUT, M_CONTENT, M_TIME) values(20163061053
 #
 #update Course set FILE_PATH='courses/pki' where C_ID='CS_PKI';
 #update Course set TALK_PATH='talks/pki' where C_ID='CS_PKI';
+
+delete from User where U_ID=201630610571
+desc Msg;
