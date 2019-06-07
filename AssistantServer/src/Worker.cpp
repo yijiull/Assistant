@@ -459,7 +459,7 @@ void Worker::process()
         //获取学生列表
         //参数：课程id
         LOG(INFO) << "GET_STUDENT_LIST";
-        auto res = conn->exec("select USERNAME, U_ID from User, SC where SC.U_ID=User.U_ID and SC.C_ID=\"" + cfg["C_ID"].get<string>() + "\"");
+        auto res = conn->exec("select USERNAME, U_ID from User, SC where SC.U_ID=User.U_ID and SC.C_ID=" + cfg["C_ID"].get<string>());
         send_json(m_sockfd, res);
         if(res["OK"].get<bool>())
         {
@@ -477,8 +477,19 @@ void Worker::process()
         //参数：用户id
         LOG(INFO) << "GET_COURSE_LIST";
         auto user_id = cfg["USERID"].get<string>();//get_user_id(conn, cfg["USERNAME"].get<string>());
-        auto res = conn->exec("select C_ID, C_NAME, T_ID, USERNAME from User, Course where \
-        Course.T_ID=User.U_ID and User.U_ID=" + user_id);
+        auto temp = conn->exec("select ROLE_TYPE from User where U_ID=" + user_id);
+        json res;
+        if(temp["info"][0]["ROLE_TYPE"] == "student")
+        {
+            res = conn->exec("select C_ID, C_NAME, T_ID from SC, Course where \
+            Course.C_ID=SC.C_ID and SC.U_ID=" + user_id);
+        }
+        else
+        {
+            res = conn->exec("select C_ID, C_NAME, T_ID, USERNAME from User, Course where \
+            Course.T_ID=User.U_ID and User.U_ID=" + user_id);
+        }
+        
         //int n = res["info"].size();
         //for(int i = 0; i < n; i++)
         //{
