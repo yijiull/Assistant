@@ -459,7 +459,7 @@ void Worker::process()
         //获取学生列表
         //参数：课程id
         LOG(INFO) << "GET_STUDENT_LIST";
-        auto res = conn->exec("select USERNAME, U_ID from User, SC where SC.U_ID=User.U_ID and SC.C_ID=" + cfg["C_ID"].get<string>());
+        auto res = conn->exec("select USERNAME, SC.U_ID from User, SC where SC.U_ID=User.U_ID and SC.C_ID=" + cfg["C_ID"].get<string>());
         send_json(m_sockfd, res);
         if(res["OK"].get<bool>())
         {
@@ -481,7 +481,7 @@ void Worker::process()
         json res;
         if(temp["info"][0]["ROLE_TYPE"] == "student")
         {
-            res = conn->exec("select C_ID, C_NAME, T_ID from SC, Course where \
+            res = conn->exec("select SC.C_ID, C_NAME, T_ID from SC, Course where \
             Course.C_ID=SC.C_ID and SC.U_ID=" + user_id);
         }
         else
