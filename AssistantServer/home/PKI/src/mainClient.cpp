@@ -335,20 +335,6 @@ int main(int argc, char* argv[])
             cout<<"请输入课程id：";
             cin>>c_id;
             auto res = user.c_get_course_files(c_id);
-            auto tree = easy_parse(res);
-            tree.print();
-            /*
-            {
-                // insert to dir_tree
-                TreeItem dir_tree;
-                auto rt = tree.get_root();
-                for(int i = 0; i < rt->sub_dirs.size(); i++)
-                {
-                    dir_tree.appendChild();
-
-                }
-            }
-            */
             cout<<res.dump(4)<<endl;
         }
         else if(type == "get_course_notice")

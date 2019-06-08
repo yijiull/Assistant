@@ -1,30 +1,6 @@
 #ifndef UTIL_H
 #define UTIL_H
 #include "head.h"
-
-//用来解析文件目录
-struct Node
-{
-    string name;
-    vector<Node*> sub_dirs;
-};
-
-class Tree
-{
-private:
-    Node *rt;
-    bool insert(const string &path);
-    void clear(Node *cur);
-public:
-    Tree();
-    ~Tree();
-    bool build(const json &files);
-    Node* get_root();
-    void print();
-};
-
-Tree easy_parse(json files);
-
 int setNonblock(int fd);
 int unblock_connect(const char* ip, const int port, int time);
 
