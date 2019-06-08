@@ -422,7 +422,7 @@ void Worker::process()
     case MARK_EMAIL:
     {
         LOG(INFO) << "MARK_EMAIL";
-        string e_id = cfg["E_ID"].get<string>();
+        string e_id = cfg["e_id"].get<string>();
         auto res = conn->exec("update EMAIL set E_TYPE=1 where E_ID=" + e_id);
         send_json(m_sockfd, res);
         if(res["OK"].get<bool>())
@@ -506,7 +506,7 @@ void Worker::process()
         json res;
         if(temp["info"][0]["ROLE_TYPE"] == "student")
         {
-            res = conn->exec("select SC.C_ID, C_NAME, T_ID, ABSENT_CNT from SC, Course where \
+            res = conn->exec("select SC.C_ID, C_NAME, T_ID, C_INFO, ABSENT_CNT from SC, Course where \
             Course.C_ID=SC.C_ID and SC.U_ID=" + user_id);
             int n = res["info"].size();
             for(int i = 0; i < n; i++)
@@ -517,7 +517,7 @@ void Worker::process()
         }
         else
         {
-            res = conn->exec("select C_ID, C_NAME, T_ID, USERNAME from User, Course where \
+            res = conn->exec("select C_ID, C_NAME, T_ID, C_INFO, USERNAME from User, Course where \
             Course.T_ID=User.U_ID and User.U_ID=" + user_id);
         }
         

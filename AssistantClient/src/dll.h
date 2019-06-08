@@ -4,6 +4,7 @@
 #include "util.h"
 #include "FileManager.h"
 
+class FileManager;
 
 class User
 {
