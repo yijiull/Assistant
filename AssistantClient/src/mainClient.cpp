@@ -85,10 +85,12 @@ int main(int argc, char* argv[])
         }
         else if(type == "upload")
         {
+            //此处已废弃，不实现功能
             cout<<"请输入需要上传的文件路径: ";
             string path;
             cin>>path;
-            auto res = user.upload(path);
+            //auto res = user.upload(path);
+            bool res = true;
             if(res)
             {
                 cout<<"上传成功\n";
@@ -101,11 +103,13 @@ int main(int argc, char* argv[])
         }
         else if(type == "download")
         {
+            //此处已废弃，不实现功能
             cout<<"请输入需要下载的文件路径: ";
             string path;
             cin>>path;
             path = user.username + "/" + path;
-            auto res = user.download(path);
+            //auto res = user.download(path);
+            bool res = true;
             if(res)
             {
                 cout<<"下载成功\n";

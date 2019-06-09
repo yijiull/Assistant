@@ -108,14 +108,31 @@ bool User::download(const string &path)
 {
     return file_manager->download(path);
 }
-bool User::upload(const string &path)
+bool User::upload(const string &path, const string &dst)
 {
-    return file_manager->upload(path);
+    return file_manager->upload(path, dst);
+}
+bool User::upload_ppt(const string &course_name, const string &file_name)
+{
+    return upload(file_name, course_name + "/ppt");
+}
+bool User::download_ppt(const string &file_path)
+{
+    return download(file_path);
+}
+bool User::upload_homework(const string & course_name, const string &path)
+{
+    return upload(path, course_name + "/homework");
+}
+bool User::download_homework(const string & course_name)
+{
+    string temp = course_name + "/homework";
+    return download(temp);
 }
 
 bool User::delete_file(const string &file)
 {
-    //TODO
+    return file_manager->delete_file(file);
 }
 json User::c_get_topic(const string &course_id)
 {
@@ -336,6 +353,7 @@ json User::c_get_course_files(const string &course_id)
     json msg;
     msg["type"] = GET_COURSE_FILES;
     msg["C_ID"] = course_id;
+    msg["role_type"] = role_type;
     send_json(m_sockfd, msg);
     epoll_event events[10];
     int res = epoll_wait(m_epollfd, events, 10, -1);

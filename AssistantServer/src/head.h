@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <assert.h>
+#include <stdio.h>
 
 #include <sys/epoll.h>
 #include <signal.h>

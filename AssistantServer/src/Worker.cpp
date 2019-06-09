@@ -543,10 +543,21 @@ void Worker::process()
         //参数：课程id
         LOG(INFO) << "GET_COURSE_FILES";
         string c_id = cfg["C_ID"].get<string>();
+        string role = cfg["role_type"].get<string>();
         auto res = conn->exec("select C_NAME from Course where C_ID=" + string("\"") + c_id + "\"");
         string course_name = res["info"][0]["C_NAME"];
         json msg;
-        files_to_json("../home/" + course_name, msg);
+        if(role == "student")
+        {
+            //学生只返回课件
+            files_to_json("../home/" + course_name + "/ppt/", msg);
+        }
+        else
+        {
+            //教师返回课件和作业
+            files_to_json("../home/" + course_name, msg);
+        }
+        
         send_json(m_sockfd, msg);
         break;
     }

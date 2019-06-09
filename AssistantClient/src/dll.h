@@ -22,6 +22,11 @@ public:
     bool is_login;
 
     FileManager *file_manager;
+private: 
+
+    bool download(const string &file_path);
+    bool upload(const string &file_path, const string &dst);
+
 public:
     User(const string &IP, const int PORT);
     ~User();
@@ -44,10 +49,13 @@ public:
     bool c_del_email(const string &e_id);
     bool c_mark_email(const string &e_id);
     bool c_save_draft_email(const string &to, const string &topic, const string &content);
-    bool download(const string &file_path);
-    bool upload(const string &file_path);
-    bool delete_file(const string &file);
 
+
+    bool upload_ppt(const string &course_name, const string &file_name);
+    bool download_ppt(const string &file_path);
+    bool upload_homework(const string & course_name, const string &path);
+    bool download_homework(const string & course_name);
+    bool delete_file(const string &file);
     //教师特权
     json c_get_student_list(const string &c_id);
 

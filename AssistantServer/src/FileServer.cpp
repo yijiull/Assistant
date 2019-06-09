@@ -112,19 +112,19 @@ void et(epoll_event* events, int number, int epollfd, int listenfd)
                 int thread_number = files["info"].size();
                 assert(thread_number == 1); //单线程上传
 
-                string username = files["username"].get<string>();
+                string dst = files["dst"].get<string>();
                 string home_dir = files["home_dir"].get<string>();
                 size_t pos = home_dir.find_last_of('/');
                 int file_number = files["info"][0].size();
                 json task = files["info"][0];
-                LOG(INFO) << "username: " << username;
+                LOG(INFO) << "dst: " << dst;
                 LOG(INFO) << "file_number: " << file_number;
                 for(int i = 0; i < file_number; i++)
                 {
                     string file_name = task[i]["file-name"].get<string>().substr(pos + 1);
                     __off64_t file_off = task[i]["st"].get<long>() + task[i]["cur-pos"].get<long>(); // 文件偏移
                     size_t length_to_download = task[i]["file-length"].get<size_t>(); //需要下载的文件长度
-                    file_name = "../home/" + username + "/" + file_name;
+                    file_name = "../home/" + dst + "/" + file_name;
                     int savefd = my_open(file_name); 
                     //cout<<"file: "<<savefd<<endl;
                     LOG(INFO) << i << " " << "filename: " << file_name << " length: " << length_to_download;
@@ -136,6 +136,33 @@ void et(epoll_event* events, int number, int epollfd, int listenfd)
                     //removefd(epollfd, sockfd);
                 }
                 //close(sockfd); //TODO, remove sockfd from epollfd;
+                removefd(epollfd, sockfd);
+
+                break;
+            }
+            case DELETE_FILE:
+            {
+                LOG(INFO) << "DELETE_FILE";
+                auto path = "../home/" + cfg["path"].get<string>();
+                LOG(WARNING) << path;
+                auto res = remove(path.c_str());
+                if(res == 0)
+                {
+                    //删除成功
+                    LOG(INFO) << "删除成功";
+                }
+                else
+                {
+                    LOG(INFO) << "删除失败";
+                }
+                
+                /*
+                auto res = walk(path);
+                for(auto &file : res)
+                {
+                    
+                }
+                */
                 removefd(epollfd, sockfd);
 
                 break;

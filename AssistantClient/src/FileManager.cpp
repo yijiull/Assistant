@@ -35,17 +35,17 @@ void FileManager::set_thread_number(int _n)
     thread_number = _n;
 }
 
-bool FileManager::upload(const string &file_path) //单线程上传文件
+bool FileManager::upload(const string &file_path, const string &dst) //单线程上传文件
 {
     json files;
     files_to_json(file_path, files);
     distribute(files, 1);
     //cout<<(*config).dump(4)<<endl;
     LOG(INFO) << (*config).dump(4);
-    return upload_ing(file_path); //??
+    return upload_ing(file_path, dst); //??
 }
 
-//向服务端请求待下载的文件信息
+//向服务端请求待下载的文件信息 
 bool FileManager::download(const string &file_path)
 {
     //if(file_path[file_path.length() - 1] == '/')  //去掉最后的`/`
@@ -303,12 +303,12 @@ bool FileManager::download_ing()
     }
     return true;
 }
-bool FileManager::upload_ing(const string &file_path)
+bool FileManager::upload_ing(const string &file_path, const string &dst)
 {
     int fd = unblock_connect(__C["FILESERVER"]["IP"].get<string>().c_str(), __C["FILESERVER"]["PORT"].get<int>(), 10);
     auto msg = *config;
     msg["type"] = UPLOAD_FILE;
-    msg["username"] = username;
+    msg["dst"] = dst;
     msg["home_dir"] = file_path;
     send_json(fd, msg);
 
@@ -322,6 +322,18 @@ bool FileManager::upload_ing(const string &file_path)
     {
         file_to_socket(tasks[i], fd);
     }
+    close(fd);
+    return true;
+}
+
+bool FileManager::delete_file(const string &file_path)
+{
+    int fd = unblock_connect(__C["FILESERVER"]["IP"].get<string>().c_str(), __C["FILESERVER"]["PORT"].get<int>(), 10);
+    json msg;
+    msg["type"] = DELETE_FILE;
+    msg["path"] = file_path;
+    send_json(fd, msg);
+    //默认要删除的文件都存在
     close(fd);
     return true;
 }
