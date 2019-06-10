@@ -65,7 +65,7 @@ insert into Course values(1404196, 'PKI', 101634566666, 'courses/pki');
 insert into Course values(1404198, '密码学', 101634566666, 'courses/密码学');
 insert into Course values(1404197, '计算方法', 101634566555, 'courses/计算方法');
 insert into SC(U_ID, C_ID) values(201630610533, 1404196);
-insert into SC(U_ID, C_ID) values(201630610666, 1404196);
+insert into SC(U_ID, C_ID) values(201630149156, 1402324);
 insert into Msg(M_AUTHOR, M_TYPE, M_ABOUT, M_CONTENT, M_TIME) values(201630610533, "TOPIC", 1404196, "about CA: how does CA work?", now());
 insert into Msg(M_AUTHOR, M_TYPE, M_ABOUT, M_CONTENT, M_TIME) values(201630610533, "COMMENT", 1, "I don't know either =_=||", now());
 insert into Msg(M_AUTHOR, M_TYPE, M_ABOUT, M_TO,  M_CONTENT, M_TIME) values(201630610533, "REPLY", 2, 201630610533, "不要水了...", now());

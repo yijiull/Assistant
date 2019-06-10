@@ -205,12 +205,12 @@ bool User::c_insert_comment(const string &topic_id, const string &content)
 
 }
 
-bool User::c_insert_reply(const string &topic_id, const string &to, const string &content)
+bool User::c_insert_reply(const string &comment_id, const string &to, const string &content)
 {
     json msg;
     msg["type"] = INSERT_REPLY;
     msg["M_AUTHOR"] = u_id;
-    msg["comment_id"] = topic_id;
+    msg["comment_id"] = comment_id;
     msg["M_TO"] = to;
     msg["M_CONTENT"] = content;
     send_json(m_sockfd, msg);
@@ -398,12 +398,13 @@ bool User::c_publish_course_notice(const string &course_id, const string &conten
         return false;
     }
 }
-bool User::c_update_absent(const string &user_id, const int cnt)
+bool User::c_update_absent(const string &user_id, const string &course_id, const int cnt)
 {
     json msg;
     msg["type"] = UPDATE_ABSENT;
     msg["USER_ID"] = user_id;
     msg["CNT"] = cnt;
+    msg["COURSE_ID"] = course_id;
     send_json(m_sockfd, msg);
     epoll_event events[10];
     int res = epoll_wait(m_epollfd, events, 10, -1);

@@ -62,7 +62,7 @@ public:
     json c_get_course_files(const string &course_id);
     json c_get_course_notice(const string &course_id);
     bool c_publish_course_notice(const string &course_id, const string &content);
-    bool c_update_absent(const string &user_id, const int cnt);
+    bool c_update_absent(const string &user_id, const string &course_id, const int cnt);
     bool c_update_grade(const string &user_id, const double grade);
     bool c_register_course(const string &course_id, const string &course_name);
 

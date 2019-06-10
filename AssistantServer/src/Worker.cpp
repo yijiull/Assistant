@@ -293,9 +293,9 @@ void Worker::process()
         //参数：作者、评论id、回复对象id
         LOG(INFO) << "INSERT_REPLY";
         //string user_id = get_user_id(conn, cfg["M_AUTHOR"].get<string>());
-        //string to_id = get_user_id(conn, cfg["M_TO"].get<string>());
+        string to_id = get_user_id(conn, cfg["M_TO"].get<string>());
         string user_id = cfg["M_AUTHOR"].get<string>();//get_user_id(conn, cfg["M_AUTHOR"].get<string>());
-        string to_id = cfg["M_TO"].get<string>();//get_user_id(conn, cfg["M_AUTHOR"].get<string>());
+        //string to_id = cfg["M_TO"].get<string>();//get_user_id(conn, cfg["M_AUTHOR"].get<string>());
         //auto res = conn->exec("select U_ID from User where USERNAME=\"" + cfg["M_AUTHOR"].get<string>() + '\"');
         //string user_id = res["info"][0]["U_ID"].get<string>();
         //res = conn->exec("select U_ID from User where USERNAME=\"" + cfg["M_TO"].get<string>() + '\"');
@@ -506,18 +506,20 @@ void Worker::process()
         json res;
         if(temp["info"][0]["ROLE_TYPE"] == "student")
         {
-            res = conn->exec("select SC.C_ID, C_NAME, T_ID, C_INFO, ABSENT_CNT from SC, Course where \
+            res = conn->exec("select SC.C_ID, C_NAME, T_ID, ABSENT_CNT from SC, Course where \
             Course.C_ID=SC.C_ID and SC.U_ID=" + user_id);
             int n = res["info"].size();
             for(int i = 0; i < n; i++)
             {
-                auto temp = conn->exec("select USERNAME from User where U_ID=" + res["info"][i]["T_ID"].get<string>());
+                auto temp = conn->exec("select USERNAME, SEX, DEPT from User where U_ID=" + res["info"][i]["T_ID"].get<string>());
                 res["info"][i]["T_NAME"] = temp["info"][0]["USERNAME"].get<string>();
+                res["info"][i]["T_SEX"] = temp["info"][0]["SEX"].get<string>();
+                res["info"][i]["T_DEPT"] = temp["info"][0]["DEPT"].get<string>();
             }
         }
         else
         {
-            res = conn->exec("select C_ID, C_NAME, T_ID, C_INFO, USERNAME from User, Course where \
+            res = conn->exec("select C_ID, C_NAME, T_ID, USERNAME from User, Course where \
             Course.T_ID=User.U_ID and User.U_ID=" + user_id);
         }
         
@@ -598,12 +600,19 @@ void Worker::process()
     {
         //更新缺勤情况
         //参数：学生id, 修改情况（+1, -1等）
+        //TODO
         LOG(INFO) << "UPDATE_ABSENT";
         string user_id = cfg["USER_ID"].get<string>();
         int cnt = cfg["CNT"].get<int>();
-        auto temp = conn->exec("select ABSENT_CNT from SC where U_ID=" + user_id);
-        int init = temp["info"][0]["ABSENT_CNT"].get<int>();
-        auto res = conn->exec("update SC set ABSENT_CNT=" + std::to_string(init + cnt) + " where U_ID=" + user_id);
+        string course_id = cfg["COURSE_ID"].get<string>();
+        auto temp = conn->exec("select ABSENT_CNT from SC where U_ID=" + user_id + " and where C_ID=" + course_id);
+        LOG(WARNING) << temp.dump(4);
+        int init = atoi((temp["info"][0]["ABSENT_CNT"].get<string>().c_str()));
+        if(cnt == 0)
+        {
+            init = 0;
+        }
+        auto res = conn->exec("update SC set ABSENT_CNT=" + std::to_string(init + cnt) + " where U_ID=" + user_id + " and C_ID=" + course_id);
         send_json(m_sockfd, res);
         if(res["OK"].get<bool>())
         {

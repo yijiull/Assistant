@@ -387,10 +387,13 @@ int main(int argc, char* argv[])
             string user_id;
             cout<<"请输入学生id：";
             cin>>user_id;
+            cout<<"请输入课程id：";
+            string course_id;
+            cin>>course_id;
             int cnt;
             cout<<"请输入缺勤情况：";
             cin>>cnt;
-            auto res = user.c_update_absent(user_id, cnt);
+            auto res = user.c_update_absent(user_id, course_id, cnt);
             if(res)
             {
                 cout<<"记录缺勤成功\n";

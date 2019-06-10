@@ -41,6 +41,7 @@ bool Tree::insert(const string &path)
                 //找到该目录
                 cur = cur->sub_dirs[i];
                 flag = true;
+                break;
             }
         }
         if(!flag)
